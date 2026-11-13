@@ -13,19 +13,21 @@ session.headers.update({
 
 def find_place(place_name):
     """
-    Search iNaturalist for a geographic place.
+    Search iNaturalist for a county.
 
     Args:
-        place_name: A location such as Brooklyn.
+        county_name: A county name such as Kings County.
 
     Returns:
-        A list of matching places.
+        A list of matching counties.
     """
 
     url = f"{BASE_URL}/places/autocomplete"
 
     params = {
-        "q": place_name
+        "q": place_name,
+        "place_type": "County",
+        "per_page": 20
     }
 
     response = session.get(
@@ -42,20 +44,26 @@ def find_place(place_name):
 
 
 def main():
-    """Run a test search for Brooklyn."""
+    """Find Kings County in New York."""
+    """ Find the correct Kings County place ID. : 2275
+Pass that ID to the iNaturalist observations endpoint.
+Filter observations to plants.
+Return observations that have photographs.
+Paginate through the results so we can collect multiple batches."""
 
-    places = find_place("Brooklyn")
+    places = find_place("Kings County, NY")
 
     if not places:
         print("No matching places found.")
         return
 
-    print("\nMatching iNaturalist places:\n")
+    print("\nMatching iNaturalist counties:\n")
 
     for place in places:
         print(
             f"Name: {place.get('display_name')}"
             f" | ID: {place.get('id')}"
+            f" | Type: {place.get('place_type_name')}"
         )
 
 
