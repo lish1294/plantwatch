@@ -44,7 +44,7 @@ def find_place(place_name):
 
 
 def main():
-    """Find Kings County in New York."""
+    """Find Kings County in New York. result: Name: Kings County, NY, US | ID: 2275 | Type: None"""
     """ Find the correct Kings County place ID. : 2275
 Pass that ID to the iNaturalist observations endpoint.
 Filter observations to plants.
