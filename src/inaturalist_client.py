@@ -42,29 +42,63 @@ def find_place(place_name):
 
     return data.get("results", [])
 
+def get_plant_observations(place_id, page=1):
+    """Retrieve plant observations within a geographic place."""
+
+    url = f"{BASE_URL}/observations"
+
+    params = {
+        "place_id": 2275,  # Kings County, NY
+        "taxon_id": 47126,  # Plantae
+        "has[]": "photos",
+        "per_page": 30,
+        "page": page
+    }
+
+    print("Requesting observations...")
+    print(f"URL: {url}")
+    print(f"Parameters: {params}")
+
+    response = session.get(url, params=params, timeout=20)
+
+    print(f"Status code: {response.status_code}")
+    print(f"Request URL: {response.url}")
+
+    response.raise_for_status()
+
+    data = response.json()
+
+    print(f"Response type: {type(data)}")
+
+    if isinstance(data, dict):
+        observations = data.get("results", [])
+    else:
+        observations = data
+
+    print(f"Observations returned: {len(observations)}")
+
+    return observations
 
 def main():
-    """Find Kings County in New York. result: Name: Kings County, NY, US | ID: 2275 | Type: None"""
-    """ Find the correct Kings County place ID. : 2275
-Pass that ID to the iNaturalist observations endpoint.
-Filter observations to plants.
-Return observations that have photographs.
-Paginate through the results so we can collect multiple batches."""
+    # First, identify the correct county boundary.
+    place_id = 2275
 
-    places = find_place("Kings County, NY")
+    # Now retrieve plant observations in that county.
+    observations = get_plant_observations(place_id)
 
-    if not places:
-        print("No matching places found.")
-        return
+    for observation in observations:
+        taxon = observation.get("taxon") or {}
+        photos = observation.get("photos") or []
 
-    print("\nMatching iNaturalist counties:\n")
+        print(f"Observation ID: {observation.get('id')}")
+        print(f"Plant: {taxon.get('name', 'Unknown')}")
+        print(f"Date: {observation.get('observed_on')}")
+        print(f"Location: {observation.get('place_guess')}")
 
-    for place in places:
-        print(
-            f"Name: {place.get('display_name')}"
-            f" | ID: {place.get('id')}"
-            f" | Type: {place.get('place_type_name')}"
-        )
+        if photos:
+            print(f"Photo: {photos[0].get('url')}")
+
+        print("-" * 40)
 
 
 if __name__ == "__main__":
